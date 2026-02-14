@@ -1,0 +1,72 @@
+name: MLOps Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+   mlops-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # 4. Data validation
+      - name: Data validation
+        run: |
+          python src/data_validation.py
+
+      # 5. Model training
+      - name: Model training
+        run: |
+          python src/train_model.py
+
+      # 6. Model evaluation
+      - name: Model evaluation
+        run: |
+          python src/evaluate_model.py
+
+      # 7. Model registration / deployment automation
+      - name: Upload model to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python src/upload_model.py
+
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # 4. Execute Pipeline
+      - name: Pipeline sanity check
+        run: |
+          echo "CI pipeline triggered successfully"
